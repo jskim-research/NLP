@@ -20,23 +20,30 @@ def define_argparser():
     p.add_argument('--gpu_id', type=int, default=-1)
     p.add_argument('--batch_size', type=int, default=256)
     p.add_argument('--top_k', type=int, default=1)  # 예측 class 들 중 확률 높은 k개
+    p.add_argument('--data_fn', required=True)
 
     config = p.parse_args()
 
     return config
 
 
-def read_text():
+def read_text(fn):
     '''
     Read text from standard input for inference.
     '''
-    lines = []
+    with open(fn, 'r', encoding="UTF-8") as f:
+        lines = f.readlines()
 
-    for line in sys.stdin:
-        if line.strip() != '':
-            lines += [line.strip()]
-
-    return lines
+        labels, texts = [], []
+        for line in lines:
+            if line.strip() != '':
+                # The file should have tab delimited two columns.
+                # First column indicates label field,
+                # and second column indicates text field.
+                label, text = line.strip().split('\t')
+                labels += [label]
+                texts += [text]
+    return texts
 
 
 def main(config):
@@ -50,7 +57,7 @@ def main(config):
     bert_best = saved_data['bert']
     index_to_label = saved_data['classes']
 
-    lines = read_text()  # 대용량 데이터의 경우 밑 추론 for 문에서 generator로 가져오는 게 좋긴 함
+    lines = read_text(config.data_fn)  # 대용량 데이터의 경우 밑 추론 for 문에서 generator로 가져오는 게 좋긴 함
 
     with torch.no_grad():
         # Declare model and load pre-trained weights.

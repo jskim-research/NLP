@@ -16,10 +16,25 @@ Lecture code에서 요구하는 버전 명시
 - Tokenized corpus (e.g. [Moses](https://www.nltk.org/_modules/nltk/tokenize/moses.html), Mecab, [Jieba](https://github.com/fxsjy/jieba))
 - Huggingface
 
+```bash
+$ pip install -r requirements.txt
+```
+
+## Usage
+
+```bash
+$ cd PyTorch/lecture_code
+$ mkdir saved_models
+$ python finetune_plm_native.py --model ./saved_models/review.native.kcbert.pth --train_fn ./data/review.sorted.uniq.refined.shuf.train.tsv --gpu_id 0 --batch_size 80 --n_epochs 2
+$ cat ./data/review.sorted.uniq.refined.shuf.test.tsv | shuf | head -n 20 | awk -F'\t' ' { print $2 } ' | python classify_plm.py --model_fn ./saved_models/review.native.kcbert.pth --gpu_id 0
+$ python classify_plm.py --model_fn ./saved_models/review.native.kcbert.pth --data_fn ./data/review.sorted.uniq.refined.shuf.test.tsv --gpu_id 0 | awk -F'\t' '{ print $1 }' > ./saved_models/review.native.kcbert.pth.result.txt
+$ cat ./data/review.sorted.uniq.refined.shuf.test.tsv | awk -F'\t' ' { print $1 } ' > ./saved_models/test_ground_truth.txt
 
 ```
-pip install -r requirements.txt
-```
+
+## Tips
+
+1. 맞춘 것도, 틀린 것도 시각화 등으로 한번 봐보자
 
 ## Reference
 - 딥러닝을 이용한 자연어 처리 입문 (https://wikidocs.net/31379)
